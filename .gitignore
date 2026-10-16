@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Build output
+app/dist/
+app/.angular/
+
+# opencode tooling (not part of the deliverable)
+.opencode/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log

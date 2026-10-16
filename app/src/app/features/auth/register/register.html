@@ -1,0 +1,99 @@
+<div class="flex min-h-[70vh] items-center justify-center px-4 py-8">
+  <div class="w-full max-w-md">
+    <div class="card">
+      <h1 class="text-xl font-bold text-slate-900">Créer un compte</h1>
+      <p class="mt-1 text-sm text-slate-500">
+        Le compte est créé avec le rôle Conducteur
+      </p>
+
+      <form class="mt-6 space-y-4" (ngSubmit)="submit()">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label class="label" for="reg-prenom">Prénom</label>
+            <input
+              id="reg-prenom"
+              type="text"
+              class="input"
+              name="prenom"
+              [ngModel]="form().prenom"
+              (ngModelChange)="update('prenom', $event)"
+              required
+            />
+          </div>
+          <div>
+            <label class="label" for="reg-nom">Nom</label>
+            <input
+              id="reg-nom"
+              type="text"
+              class="input"
+              name="nom"
+              [ngModel]="form().nom"
+              (ngModelChange)="update('nom', $event)"
+              required
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="label" for="reg-email">Email</label>
+          <input
+            id="reg-email"
+            type="email"
+            class="input"
+            name="email"
+            autocomplete="email"
+            placeholder="vous@entreprise.fr"
+            [ngModel]="form().email"
+            (ngModelChange)="update('email', $event)"
+            required
+          />
+        </div>
+
+        <div>
+          <label class="label" for="reg-password">Mot de passe (8 caractères min.)</label>
+          <input
+            id="reg-password"
+            type="password"
+            class="input"
+            name="password"
+            autocomplete="new-password"
+            [ngModel]="form().password"
+            (ngModelChange)="update('password', $event)"
+            required
+          />
+        </div>
+
+        <div>
+          <label class="label" for="reg-confirm">Confirmer le mot de passe</label>
+          <input
+            id="reg-confirm"
+            type="password"
+            class="input"
+            name="confirm"
+            autocomplete="new-password"
+            [ngModel]="form().confirm"
+            (ngModelChange)="update('confirm', $event)"
+            required
+          />
+        </div>
+
+        @if (error()) {
+          <p class="rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+            {{ error() }}
+          </p>
+        }
+
+        <button type="submit" class="btn-primary w-full" [disabled]="loading()">
+          {{ loading() ? 'Création…' : "S'inscrire" }}
+        </button>
+      </form>
+
+      <p class="mt-4 text-center text-sm text-slate-500">
+        Déjà inscrit ?
+        <a routerLink="/login" class="font-medium text-blue-600 hover:underline">
+          Se connecter
+        </a>
+      </p>
+    </div>
+  </div>
+</div>

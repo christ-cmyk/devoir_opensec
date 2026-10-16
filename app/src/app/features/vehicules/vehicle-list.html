@@ -1,0 +1,129 @@
+<div class="space-y-5">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-xl font-bold text-slate-900">Véhicules</h1>
+      <p class="text-sm text-slate-500">
+        {{ vehicles.length }} véhicule(s) affiché(s)
+      </p>
+    </div>
+    <a routerLink="/vehicules/new" class="btn-primary">+ Nouveau véhicule</a>
+  </div>
+
+  <div class="card flex flex-col gap-3 sm:flex-row">
+    <div class="flex-1">
+      <label class="label" for="vehicle-search">Recherche</label>
+      <input
+        id="vehicle-search"
+        type="search"
+        class="input"
+        placeholder="Immatriculation, marque ou modèle…"
+        [ngModel]="query()"
+        (ngModelChange)="query.set($event)"
+      />
+    </div>
+    <div class="sm:w-56">
+      <label class="label" for="vehicle-status">Statut</label>
+      <select
+        id="vehicle-status"
+        class="input"
+        [ngModel]="statutFilter()"
+        (ngModelChange)="statutFilter.set($event)"
+      >
+        <option value="">Tous les statuts</option>
+        @for (status of statuses; track status) {
+          <option [value]="status">{{ statusLabels[status] }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <div class="card overflow-x-auto p-0">
+    <table class="min-w-full divide-y divide-slate-200 text-sm">
+      <thead class="bg-slate-50 text-left text-xs font-semibold uppercase text-slate-500">
+        <tr>
+          <th class="px-4 py-3">Immatriculation</th>
+          <th class="px-4 py-3">Véhicule</th>
+          <th class="px-4 py-3">Année</th>
+          <th class="px-4 py-3">Kilométrage</th>
+          <th class="px-4 py-3">Carburant</th>
+          <th class="px-4 py-3">Statut</th>
+          <th class="px-4 py-3 text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 bg-white">
+        @for (vehicle of vehicles; track vehicle.id) {
+          <tr class="hover:bg-slate-50">
+            <td class="px-4 py-3 font-mono font-semibold text-slate-900">
+              {{ vehicle.immatriculation }}
+            </td>
+            <td class="px-4 py-3 text-slate-700">
+              {{ vehicle.marque }} {{ vehicle.modele }}
+            </td>
+            <td class="px-4 py-3 text-slate-700">{{ vehicle.annee }}</td>
+            <td class="px-4 py-3 text-slate-700">
+              {{ vehicle.kilometrage | number: '1.0-0' }} km
+            </td>
+            <td class="px-4 py-3 text-slate-700">
+              {{ fuelLabels[vehicle.typeCarburant] }}
+            </td>
+            <td class="px-4 py-3">
+              <span
+                class="badge"
+                [class.bg-emerald-100]="vehicle.statut === 'DISPONIBLE'"
+                [class.text-emerald-700]="vehicle.statut === 'DISPONIBLE'"
+                [class.bg-blue-100]="vehicle.statut === 'AFFECTE'"
+                [class.text-blue-700]="vehicle.statut === 'AFFECTE'"
+                [class.bg-amber-100]="vehicle.statut === 'EN_ENTRETIEN'"
+                [class.text-amber-700]="vehicle.statut === 'EN_ENTRETIEN'"
+                [class.bg-red-100]="vehicle.statut === 'HORS_SERVICE'"
+                [class.text-red-700]="vehicle.statut === 'HORS_SERVICE'"
+              >
+                {{ statusLabels[vehicle.statut] }}
+              </span>
+            </td>
+            <td class="px-4 py-3 text-right">
+              <div class="flex justify-end gap-2">
+                <a
+                  [routerLink]="['/vehicules', vehicle.id]"
+                  class="btn-secondary px-3 py-1.5"
+                >
+                  Détail
+                </a>
+                @if (auth.hasRole('ADMIN', 'GESTIONNAIRE')) {
+                  <a
+                    [routerLink]="['/vehicules', vehicle.id, 'edit']"
+                    class="btn-secondary px-3 py-1.5"
+                  >
+                    Modifier
+                  </a>
+                  <button
+                    type="button"
+                    class="btn-danger px-3 py-1.5"
+                    (click)="askDelete(vehicle.id)"
+                  >
+                    Supprimer
+                  </button>
+                }
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="7" class="px-4 py-8 text-center text-slate-500">
+              Aucun véhicule ne correspond à votre recherche.
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<app-confirm-dialog
+  [visible]="pendingDelete() !== null"
+  title="Supprimer le véhicule"
+  message="Cette action est définitive. Confirmez-vous la suppression ?"
+  confirmLabel="Supprimer"
+  (confirm)="confirmDelete()"
+  (cancel)="cancelDelete()"
+/>

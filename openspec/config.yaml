@@ -1,0 +1,36 @@
+schema: spec-driven
+
+project:
+  name: devoir_openspec
+  description: Gestion de parc automobile d'entreprise
+  language: fr
+
+stack:
+  frontend: Angular 17+ (standalone components, signals)
+  styling: TailwindCSS
+  charts: Chart.js (ng2-charts)
+  persistence: localStorage (service abstrait)
+  auth: Web Crypto API (SHA-256 + salt)
+  deploy: Vercel
+
+conventions:
+  - Code source en anglais, specs et UI en français
+  - Un composant = un dossier (ts, html, css)
+  - Services injectables avec providedIn: 'root'
+  - Guards fonctionnels (CanActivateFn)
+  - Signals Angular pour l'état local
+  - Un changement OpenSpec par module métier
+
+roles:
+  - ADMIN
+  - GESTIONNAIRE
+  - CONDUCTEUR
+
+modules:
+  - auth
+  - vehicules
+  - affectations
+  - entretiens
+  - carburant
+  - dashboard
+  - utilisateurs

@@ -1,0 +1,135 @@
+<div class="mx-auto max-w-2xl space-y-5">
+  <div>
+    <a routerLink="/vehicules" class="text-sm text-blue-600 hover:underline">
+      ← Retour à la liste
+    </a>
+    <h1 class="mt-2 text-xl font-bold text-slate-900">
+      {{ isEdit() ? 'Modifier le véhicule' : 'Nouveau véhicule' }}
+    </h1>
+  </div>
+
+  <form class="card space-y-4" (ngSubmit)="submit()">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div>
+        <label class="label" for="v-immat">Immatriculation</label>
+        <input
+          id="v-immat"
+          type="text"
+          class="input font-mono uppercase"
+          placeholder="AB-123-CD"
+          name="immatriculation"
+          [ngModel]="form().immatriculation"
+          (ngModelChange)="update('immatriculation', $event)"
+          required
+        />
+      </div>
+      <div>
+        <label class="label" for="v-marque">Marque</label>
+        <input
+          id="v-marque"
+          type="text"
+          class="input"
+          name="marque"
+          placeholder="Renault"
+          [ngModel]="form().marque"
+          (ngModelChange)="update('marque', $event)"
+          required
+        />
+      </div>
+      <div>
+        <label class="label" for="v-modele">Modèle</label>
+        <input
+          id="v-modele"
+          type="text"
+          class="input"
+          name="modele"
+          placeholder="Master"
+          [ngModel]="form().modele"
+          (ngModelChange)="update('modele', $event)"
+          required
+        />
+      </div>
+      <div>
+        <label class="label" for="v-annee">Année</label>
+        <input
+          id="v-annee"
+          type="number"
+          class="input"
+          name="annee"
+          min="1950"
+          [ngModel]="form().annee"
+          (ngModelChange)="update('annee', $event)"
+          required
+        />
+      </div>
+      <div>
+        <label class="label" for="v-km">Kilométrage</label>
+        <input
+          id="v-km"
+          type="number"
+          class="input"
+          name="kilometrage"
+          min="0"
+          [ngModel]="form().kilometrage"
+          (ngModelChange)="update('kilometrage', $event)"
+          required
+        />
+      </div>
+      <div>
+        <label class="label" for="v-carburant">Type de carburant</label>
+        <select
+          id="v-carburant"
+          class="input"
+          name="typeCarburant"
+          [ngModel]="form().typeCarburant"
+          (ngModelChange)="update('typeCarburant', $event)"
+        >
+          @for (fuel of fuelTypes; track fuel) {
+            <option [value]="fuel">{{ fuelLabels[fuel] }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="label" for="v-acquisition">Date d'acquisition</label>
+        <input
+          id="v-acquisition"
+          type="date"
+          class="input"
+          name="dateAcquisition"
+          [ngModel]="form().dateAcquisition"
+          (ngModelChange)="update('dateAcquisition', $event)"
+          required
+        />
+      </div>
+      @if (isEdit()) {
+        <div>
+          <label class="label" for="v-statut">Statut</label>
+          <select
+            id="v-statut"
+            class="input"
+            name="statut"
+            [ngModel]="form().statut"
+            (ngModelChange)="update('statut', $event)"
+          >
+            @for (status of statuses; track status) {
+              <option [value]="status">{{ statusLabels[status] }}</option>
+            }
+          </select>
+        </div>
+      }
+    </div>
+
+    @if (error()) {
+      <p class="rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+        {{ error() }}
+      </p>
+    }
+
+    <div class="flex justify-end gap-3">
+      <a routerLink="/vehicules" class="btn-secondary">Annuler</a>
+      <button type="submit" class="btn-primary">
+        {{ isEdit() ? 'Enregistrer' : 'Créer le véhicule' }}
+      </button>
+    </div>
+  </form>
+</div>

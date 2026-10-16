@@ -1,0 +1,70 @@
+<div class="flex min-h-[70vh] items-center justify-center px-4">
+  <div class="w-full max-w-md">
+    <div class="card">
+      <h1 class="text-xl font-bold text-slate-900">Connexion</h1>
+      <p class="mt-1 text-sm text-slate-500">
+        Accédez à la gestion de votre parc automobile
+      </p>
+
+      <form class="mt-6 space-y-4" (ngSubmit)="submit()">
+        <div>
+          <label class="label" for="login-email">Email</label>
+          <input
+            id="login-email"
+            type="email"
+            class="input"
+            name="email"
+            autocomplete="email"
+            placeholder="vous@entreprise.fr"
+            [ngModel]="email()"
+            (ngModelChange)="email.set($event)"
+            required
+          />
+        </div>
+
+        <div>
+          <label class="label" for="login-password">Mot de passe</label>
+          <input
+            id="login-password"
+            type="password"
+            class="input"
+            name="password"
+            autocomplete="current-password"
+            placeholder="••••••••"
+            [ngModel]="password()"
+            (ngModelChange)="password.set($event)"
+            required
+          />
+        </div>
+
+        @if (error()) {
+          <p class="rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+            {{ error() }}
+          </p>
+        }
+
+        <button
+          type="submit"
+          class="btn-primary w-full"
+          [disabled]="loading()"
+        >
+          {{ loading() ? 'Connexion…' : 'Se connecter' }}
+        </button>
+      </form>
+
+      <p class="mt-4 text-center text-sm text-slate-500">
+        Pas encore de compte ?
+        <a routerLink="/register" class="font-medium text-blue-600 hover:underline">
+          Créer un compte
+        </a>
+      </p>
+    </div>
+
+    <div class="mt-4 rounded-lg bg-slate-100 p-3 text-xs text-slate-600">
+      <p class="font-semibold">Comptes de démonstration</p>
+      <p>admin@parc.fr / Admin12345 (ADMIN)</p>
+      <p>gestion@parc.fr / Gestion12345 (GESTIONNAIRE)</p>
+      <p>conducteur@parc.fr / Conduct12345 (CONDUCTEUR)</p>
+    </div>
+  </div>
+</div>

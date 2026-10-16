@@ -1,0 +1,74 @@
+<nav
+  class="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-slate-200 bg-white md:flex"
+>
+  <div class="border-b border-slate-200 px-5 py-5">
+    <a routerLink="/dashboard" class="text-lg font-bold text-slate-900">
+      🚗 Parc Auto
+    </a>
+    <p class="mt-1 text-xs text-slate-500">Gestion de flotte</p>
+  </div>
+
+  <ul class="flex-1 space-y-1 p-3">
+    @for (item of visibleItems(); track item.path) {
+      <li>
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="bg-blue-50 text-blue-700"
+          class="block rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
+        >
+          {{ item.label }}
+        </a>
+      </li>
+    }
+  </ul>
+
+  <div class="space-y-2 border-t border-slate-200 p-3">
+    <button type="button" class="btn-secondary w-full text-xs" (click)="askReset()">
+      Réinitialiser les données
+    </button>
+    <p class="text-xs text-slate-400">Données locales (localStorage)</p>
+  </div>
+</nav>
+
+<!-- Navigation mobile -->
+<button
+  type="button"
+  class="w-full border-b border-slate-200 bg-white px-4 py-3 text-left text-sm font-medium text-slate-700 md:hidden"
+  (click)="toggle()"
+>
+  Menu de navigation
+</button>
+@if (isMobileOpen()) {
+  <ul class="border-b border-slate-200 bg-white p-2 md:hidden">
+    @for (item of visibleItems(); track item.path) {
+      <li>
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="bg-blue-50 text-blue-700"
+          (click)="close()"
+          class="block rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
+        >
+          {{ item.label }}
+        </a>
+      </li>
+    }
+    <li>
+      <button
+        type="button"
+        class="block w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-red-600 hover:bg-red-50"
+        (click)="askReset()"
+      >
+        Réinitialiser les données
+      </button>
+    </li>
+  </ul>
+}
+
+<app-confirm-dialog
+  [visible]="confirmReset()"
+  title="Réinitialiser les données"
+  message="Toutes les données locales seront supprimées puis remplacées par le jeu de démonstration. Êtes-vous sûr ?"
+  confirmLabel="Réinitialiser"
+  (confirm)="confirmResetAction()"
+  (cancel)="cancelReset()"
+/>

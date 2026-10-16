@@ -1,0 +1,123 @@
+<div class="space-y-5">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-xl font-bold text-slate-900">Affectations</h1>
+      <p class="text-sm text-slate-500">
+        {{ assignments.length }} affectation(s) affichée(s)
+      </p>
+    </div>
+    <a routerLink="/affectations/new" class="btn-primary">
+      + Nouvelle affectation
+    </a>
+  </div>
+
+  <div class="card sm:max-w-xs">
+    <label class="label" for="assignment-status">Filtrer par statut</label>
+    <select
+      id="assignment-status"
+      class="input"
+      [ngModel]="statutFilter()"
+      (ngModelChange)="statutFilter.set($event)"
+    >
+      <option value="">Tous</option>
+      @for (status of statuses; track status) {
+        <option [value]="status">{{ statusLabels[status] }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="card overflow-x-auto p-0">
+    <table class="min-w-full divide-y divide-slate-200 text-sm">
+      <thead class="bg-slate-50 text-left text-xs font-semibold uppercase text-slate-500">
+        <tr>
+          <th class="px-4 py-3">Véhicule</th>
+          <th class="px-4 py-3">Conducteur</th>
+          <th class="px-4 py-3">Période</th>
+          <th class="px-4 py-3">Motif</th>
+          <th class="px-4 py-3">Statut</th>
+          <th class="px-4 py-3 text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 bg-white">
+        @for (assignment of assignments; track assignment.id) {
+          <tr class="hover:bg-slate-50">
+            <td class="px-4 py-3 font-medium text-slate-800">
+              {{ vehicleLabel(assignment.vehiculeId) }}
+            </td>
+            <td class="px-4 py-3 text-slate-700">
+              {{ driverLabel(assignment.conducteurId) }}
+            </td>
+            <td class="px-4 py-3 text-slate-700">
+              {{ assignment.dateDebut | date: 'dd/MM/yyyy' }} →
+              {{ assignment.dateFin | date: 'dd/MM/yyyy' }}
+            </td>
+            <td class="max-w-xs truncate px-4 py-3 text-slate-600">
+              {{ assignment.motif }}
+            </td>
+            <td class="px-4 py-3">
+              <span
+                class="badge"
+                [class.bg-blue-100]="assignment.statut === 'EN_COURS'"
+                [class.text-blue-700]="assignment.statut === 'EN_COURS'"
+                [class.bg-emerald-100]="assignment.statut === 'TERMINEE'"
+                [class.text-emerald-700]="assignment.statut === 'TERMINEE'"
+                [class.bg-slate-200]="assignment.statut === 'ANNULEE'"
+                [class.text-slate-600]="assignment.statut === 'ANNULEE'"
+              >
+                {{ statusLabels[assignment.statut] }}
+              </span>
+            </td>
+            <td class="px-4 py-3">
+              <div class="flex flex-wrap justify-end gap-2">
+                @if (assignment.statut === 'EN_COURS') {
+                  <button
+                    type="button"
+                    class="btn-success px-3 py-1.5"
+                    (click)="terminate(assignment.id)"
+                  >
+                    Terminer
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-secondary px-3 py-1.5"
+                    (click)="cancelAssignment(assignment.id)"
+                  >
+                    Annuler
+                  </button>
+                }
+                <a
+                  [routerLink]="['/affectations', assignment.id, 'edit']"
+                  class="btn-secondary px-3 py-1.5"
+                >
+                  Modifier
+                </a>
+                <button
+                  type="button"
+                  class="btn-danger px-3 py-1.5"
+                  (click)="askDelete(assignment.id)"
+                >
+                  Supprimer
+                </button>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="6" class="px-4 py-8 text-center text-slate-500">
+              Aucune affectation.
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<app-confirm-dialog
+  [visible]="pendingDelete() !== null"
+  title="Supprimer l'affectation"
+  message="L'affectation sera définitivement supprimée. Confirmez-vous ?"
+  confirmLabel="Supprimer"
+  (confirm)="confirmDelete()"
+  (cancel)="cancelDelete()"
+/>

@@ -1,0 +1,180 @@
+<div class="space-y-5">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-xl font-bold text-slate-900">Entretiens</h1>
+      <p class="text-sm text-slate-500">
+        {{ maintainances.length }} entretien(s) affiché(s)
+      </p>
+    </div>
+    <a routerLink="/entretiens/new" class="btn-primary">
+      + Planifier un entretien
+    </a>
+  </div>
+
+  @if (upcoming.length > 0) {
+    <div class="rounded-xl border border-amber-300 bg-amber-50 p-4">
+      <h2 class="text-sm font-semibold text-amber-800">
+        Alertes — entretiens dans les 7 prochains jours
+      </h2>
+      <ul class="mt-2 space-y-1 text-sm text-amber-800">
+        @for (maintenance of upcoming; track maintenance.id) {
+          <li>
+            • {{ vehicleLabel(maintenance.vehiculeId) }} —
+            {{ typeLabels[maintenance.type] }} le
+            {{ maintenance.datePrevue | date: 'dd/MM/yyyy' }}
+            ({{ maintenance.description }})
+          </li>
+        }
+      </ul>
+    </div>
+  }
+
+  <div class="card sm:max-w-xs">
+    <label class="label" for="maintenance-status">Filtrer par statut</label>
+    <select
+      id="maintenance-status"
+      class="input"
+      [ngModel]="statutFilter()"
+      (ngModelChange)="statutFilter.set($event)"
+    >
+      <option value="">Tous</option>
+      @for (status of statuses; track status) {
+        <option [value]="status">{{ statusLabels[status] }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="card overflow-x-auto p-0">
+    <table class="min-w-full divide-y divide-slate-200 text-sm">
+      <thead class="bg-slate-50 text-left text-xs font-semibold uppercase text-slate-500">
+        <tr>
+          <th class="px-4 py-3">Véhicule</th>
+          <th class="px-4 py-3">Type</th>
+          <th class="px-4 py-3">Description</th>
+          <th class="px-4 py-3">Date prévue</th>
+          <th class="px-4 py-3">Coût estimé</th>
+          <th class="px-4 py-3">Statut</th>
+          <th class="px-4 py-3 text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 bg-white">
+        @for (maintenance of maintainances; track maintenance.id) {
+          <tr class="hover:bg-slate-50">
+            <td class="px-4 py-3 font-mono font-semibold text-slate-800">
+              {{ vehicleLabel(maintenance.vehiculeId) }}
+            </td>
+            <td class="px-4 py-3 text-slate-700">
+              {{ typeLabels[maintenance.type] }}
+            </td>
+            <td class="max-w-xs truncate px-4 py-3 text-slate-600">
+              {{ maintenance.description }}
+            </td>
+            <td class="px-4 py-3 text-slate-700">
+              {{ maintenance.datePrevue | date: 'dd/MM/yyyy' }}
+            </td>
+            <td class="px-4 py-3 text-slate-700">
+              {{ maintenance.coutEstime | number: '1.0-2' }} €
+              @if (maintenance.coutReel !== undefined) {
+                <span class="text-xs text-slate-400">
+                  (réel : {{ maintenance.coutReel | number: '1.0-2' }} €)
+                </span>
+              }
+            </td>
+            <td class="px-4 py-3">
+              <span class="badge {{ statusClass(maintenance.statut) }}">
+                {{ statusLabels[maintenance.statut] }}
+              </span>
+            </td>
+            <td class="px-4 py-3">
+              <div class="flex flex-wrap justify-end gap-2">
+                @if (maintenance.statut === 'PLANIFIE') {
+                  <button
+                    type="button"
+                    class="btn-secondary px-3 py-1.5"
+                    (click)="start(maintenance.id)"
+                  >
+                    Démarrer
+                  </button>
+                }
+                @if (maintenance.statut === 'PLANIFIE' || maintenance.statut === 'EN_COURS') {
+                  <button
+                    type="button"
+                    class="btn-success px-3 py-1.5"
+                    (click)="openComplete(maintenance.id)"
+                  >
+                    Terminer
+                  </button>
+                }
+                <a
+                  [routerLink]="['/entretiens', maintenance.id, 'edit']"
+                  class="btn-secondary px-3 py-1.5"
+                >
+                  Modifier
+                </a>
+                <button
+                  type="button"
+                  class="btn-danger px-3 py-1.5"
+                  (click)="askDelete(maintenance.id)"
+                >
+                  Supprimer
+                </button>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="7" class="px-4 py-8 text-center text-slate-500">
+              Aucun entretien.
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<app-confirm-dialog
+  [visible]="pendingDelete() !== null"
+  title="Supprimer l'entretien"
+  message="L'entretien sera définitivement supprimé. Confirmez-vous ?"
+  confirmLabel="Supprimer"
+  (confirm)="confirmDelete()"
+  (cancel)="cancelDelete()"
+/>
+
+@if (completing(); as state) {
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4"
+    (click)="cancelComplete()"
+  >
+    <div
+      class="w-full max-w-md rounded-xl bg-white p-6 shadow-xl"
+      role="dialog"
+      aria-modal="true"
+      (click)="$event.stopPropagation()"
+    >
+      <h2 class="text-lg font-semibold text-slate-900">Terminer l'entretien</h2>
+      <p class="mt-2 text-sm text-slate-600">
+        Saisissez le coût réel de l'intervention.
+      </p>
+      <label class="label mt-4" for="complete-cost">Coût réel (€)</label>
+      <input
+        id="complete-cost"
+        type="number"
+        class="input"
+        min="0"
+        step="0.01"
+        [ngModel]="state.coutReel"
+        (ngModelChange)="updateCompleteCost($event)"
+      />
+      <div class="mt-6 flex justify-end gap-3">
+        <button type="button" class="btn-secondary" (click)="cancelComplete()">
+          Annuler
+        </button>
+        <button type="button" class="btn-success" (click)="confirmComplete()">
+          Valider
+        </button>
+      </div>
+    </div>
+  </div>
+}

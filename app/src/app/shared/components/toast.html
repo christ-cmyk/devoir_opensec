@@ -1,0 +1,19 @@
+@if (notifications.current(); as notification) {
+  <div
+    class="fixed bottom-4 right-4 z-[60] max-w-sm rounded-lg px-4 py-3 text-sm font-medium text-white shadow-lg"
+    [class.bg-emerald-600]="notification.type === 'success'"
+    [class.bg-red-600]="notification.type === 'error'"
+    [class.bg-slate-800]="notification.type === 'info'"
+    role="status"
+  >
+    {{ notification.message }}
+    <button
+      type="button"
+      class="ml-3 font-bold"
+      aria-label="Fermer"
+      (click)="notifications.clear()"
+    >
+      ×
+    </button>
+  </div>
+}

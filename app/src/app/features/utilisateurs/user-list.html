@@ -1,0 +1,76 @@
+<div class="space-y-5">
+  <div>
+    <h1 class="text-xl font-bold text-slate-900">Utilisateurs</h1>
+    <p class="text-sm text-slate-500">
+      {{ users.length }} compte(s) enregistré(s)
+    </p>
+  </div>
+
+  <div class="card overflow-x-auto p-0">
+    <table class="min-w-full divide-y divide-slate-200 text-sm">
+      <thead class="bg-slate-50 text-left text-xs font-semibold uppercase text-slate-500">
+        <tr>
+          <th class="px-4 py-3">Nom</th>
+          <th class="px-4 py-3">Email</th>
+          <th class="px-4 py-3">Rôle</th>
+          <th class="px-4 py-3">Inscrit le</th>
+          <th class="px-4 py-3 text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 bg-white">
+        @for (user of users; track user.id) {
+          <tr class="hover:bg-slate-50">
+            <td class="px-4 py-3 font-medium text-slate-800">
+              {{ user.prenom }} {{ user.nom }}
+              @if (isSelf(user.id)) {
+                <span class="ml-1 text-xs text-slate-400">(vous)</span>
+              }
+            </td>
+            <td class="px-4 py-3 text-slate-600">{{ user.email }}</td>
+            <td class="px-4 py-3">
+              <select
+                class="input py-1.5"
+                [ngModel]="user.role"
+                (ngModelChange)="changeRole(user.id, $event)"
+                [disabled]="isSelf(user.id)"
+                [attr.aria-label]="'Rôle de ' + user.email"
+              >
+                @for (role of roles; track role) {
+                  <option [value]="role">{{ roleLabel[role] }}</option>
+                }
+              </select>
+            </td>
+            <td class="px-4 py-3 text-slate-600">
+              {{ user.createdAt | date: 'dd/MM/yyyy' }}
+            </td>
+            <td class="px-4 py-3 text-right">
+              <button
+                type="button"
+                class="btn-danger px-3 py-1.5"
+                [disabled]="isSelf(user.id)"
+                (click)="askDelete(user.id)"
+              >
+                Supprimer
+              </button>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="5" class="px-4 py-8 text-center text-slate-500">
+              Aucun utilisateur.
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<app-confirm-dialog
+  [visible]="pendingDelete() !== null"
+  title="Supprimer l'utilisateur"
+  message="Le compte sera définitivement supprimé. Confirmez-vous ?"
+  confirmLabel="Supprimer"
+  (confirm)="confirmDelete()"
+  (cancel)="cancelDelete()"
+/>
